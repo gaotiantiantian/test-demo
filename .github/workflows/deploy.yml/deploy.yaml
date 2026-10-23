@@ -2,7 +2,7 @@ name: Deploy Vue to GitHub Pages
 
 on:
   push:
-    branches: ["main"] # 如果你主分支叫 master，请改成 master
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
