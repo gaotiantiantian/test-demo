@@ -1,0 +1,16 @@
+:root {
+  --color-background: #f7f8fa;
+  --color-surface: #ffffff;
+  --color-text: #333333;
+  --color-text-secondary: #777777;
+  --color-text-muted: #999999;
+  --color-accent: #ff353d;
+  --color-accent-soft: #fff4f4;
+  --color-border: #e5e5e5;
+  --color-border-selected: #ff353d;
+  --color-gift-text: #61482f;
+  --page-width: 430px;
+  --page-gutter: 16px;
+  --card-radius: 8px;
+  --control-radius: 8px;
+}
