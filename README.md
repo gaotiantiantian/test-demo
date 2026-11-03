@@ -86,16 +86,9 @@ GitHub Pages 上的 Vue H5 -> CloudBase HTTP 云函数 -> CloudBase 云数据库
 {"status":"ok","database":"connected"}
 ```
 
-### 4. 将云函数地址配置到 GitHub
+### 4. 配置生产云函数地址
 
-1. 打开 GitHub 仓库 `gaotiantiantian/test-demo`。
-2. 点击 **Settings -> Secrets and variables -> Actions -> Variables**。
-3. 点击 **New repository variable**。
-4. Name 填写 `VITE_CLOUDBASE_FUNCTION_URL`。
-5. Value 粘贴 CloudBase 的完整 HTTPS 地址并保存。
-6. 打开 **Actions**，重新运行 `Deploy Vue to Pages`，或推送一次新提交触发部署。
-
-云函数 URL 不是数据库密钥，可以作为 GitHub Actions Variable 使用；数据库仍只允许云函数访问。
+CloudBase HTTP 地址是网页必须访问的公开 URL，不是数据库密钥。生产地址保存在 [`.env.production`](./.env.production)，GitHub Pages 构建时由 Vite 自动读取。API Key 等服务端凭证仍只能放在 GitHub Secrets，不能写入任何 `.env` 文件。
 
 ### 5. 验证反馈保存
 

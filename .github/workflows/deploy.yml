@@ -35,8 +35,6 @@ jobs:
       - name: Test
         run: npm run test
       - name: Build
-        env:
-          VITE_CLOUDBASE_FUNCTION_URL: ${{ vars.VITE_CLOUDBASE_FUNCTION_URL }}
         run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v4
