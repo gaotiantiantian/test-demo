@@ -1,13 +1,19 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import LoadingOverlay from '@/components/common/LoadingOverlay.vue'
 import SurveySuccess from '@/components/survey/SurveySuccess.vue'
 import SurveyView from '@/components/survey/SurveyView.vue'
 import { submitSurvey } from '@/api/survey'
+import successImage from '@/assets/images/survey-success.png'
 
 const pageState = ref('survey')
 const submission = ref(null)
 const submitError = ref('')
+
+onMounted(() => {
+  const image = new Image()
+  image.src = successImage
+})
 
 async function handleSubmit(answers) {
   if (pageState.value === 'submitting') return
