@@ -1,0 +1,33 @@
+name: Verify pull request
+
+on:
+  pull_request:
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install web dependencies
+        run: npm ci
+      - name: Install function dependencies
+        run: npm ci --prefix cloudfunctions/survey
+      - name: Test
+        run: npm run test
+      - name: Build
+        run: npm run build
+      - name: Check cloud function syntax
+        run: |
+          node --check cloudfunctions/survey/index.js
+          node --check cloudfunctions/survey/survey.cjs

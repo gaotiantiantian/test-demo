@@ -1,0 +1,46 @@
+name: Deploy CloudBase function
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "cloudfunctions/survey/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cloudbase-survey-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment: production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            cloudfunctions/survey/package-lock.json
+      - name: Install web dependencies
+        run: npm ci
+      - name: Install function dependencies
+        run: npm ci --prefix cloudfunctions/survey
+      - name: Test
+        run: npm run test
+      - name: Login to CloudBase
+        run: npx --yes --package @cloudbase/cli@3.8.11 tcb login --cloudbase-api-key "$CLOUDBASE_API_KEY" -e "$CLOUDBASE_ENV_ID"
+        env:
+          CLOUDBASE_API_KEY: ${{ secrets.CLOUDBASE_API_KEY }}
+          CLOUDBASE_ENV_ID: ${{ secrets.CLOUDBASE_ENV_ID }}
+      - name: Update function code
+        run: npx --yes --package @cloudbase/cli@3.8.11 tcb fn code update survey -e "$CLOUDBASE_ENV_ID" --yes
+        env:
+          CLOUDBASE_ENV_ID: ${{ secrets.CLOUDBASE_ENV_ID }}

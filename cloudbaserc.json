@@ -1,0 +1,22 @@
+{
+  "$schema": "https://static.cloudbase.net/cli/cloudbaserc.schema.json",
+  "envId": "{{env.CLOUDBASE_ENV_ID}}",
+  "functions": [
+    {
+      "name": "survey",
+      "type": "Event",
+      "dir": "./cloudfunctions/survey",
+      "handler": "index.main",
+      "runtime": "Nodejs20.19",
+      "timeout": 10,
+      "memorySize": 256,
+      "installDependency": false,
+      "envVariables": {
+        "ALLOWED_ORIGIN": "https://gaotiantiantian.github.io",
+        "DEMO_SERVICE_NAME": "投顾服务",
+        "DEMO_SERVICE_END_DATE": "2026-11-29"
+      },
+      "ignore": ["README.md"]
+    }
+  ]
+}

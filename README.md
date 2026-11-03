@@ -28,75 +28,96 @@ npm run build
 
 ## 演示数据闭环
 
-当前项目已提供 Vercel Serverless API 与 Supabase 持久化，可先跑通以下演示流程：
+当前项目已提供腾讯云 CloudBase 云函数与云数据库持久化，可先跑通以下演示流程：
 
 ```text
-Vue H5 -> POST /api/surveys -> Vercel Function -> Supabase -> 成功页
+GitHub Pages 上的 Vue H5 -> CloudBase HTTP 云函数 -> CloudBase 云数据库 -> 成功页
 ```
 
 - 服务端按题目白名单重新校验答案。
-- `requestId` 在数据库中唯一，重复提交返回同一条记录。
-- `GET /api/surveys?id=<submissionId>` 可以读回单条反馈。
-- `GET /api/health` 用于检查 Vercel 与 Supabase 是否连通。
+- `requestId` 作为数据库文档 ID，重复提交返回同一条记录。
+- 云函数 URL 直接使用 GET 请求可以检查数据库连接。
+- 云函数 URL 加 `?id=<submissionId>` 可以读回单条反馈。
 - `reward.mode=demo` 仅用于演示成功页，不表示真实服务权益已发放。
 
-### 1. 创建 Supabase 数据表
+完整的教学型专业流程见：
 
-1. 在 Supabase 创建项目。
-2. 打开 **SQL Editor**。
-3. 执行 [`supabase/schema.sql`](./supabase/schema.sql)。
-4. 在 **Table Editor** 中确认出现 `survey_submissions`。
+- [`docs/开发部署流程.md`](./docs/开发部署流程.md)：从需求到监控的完整生命周期。
+- [`docs/验收清单.md`](./docs/验收清单.md)：发布前后逐项检查。
+- [`docs/回滚手册.md`](./docs/回滚手册.md)：前端、云函数和数据的恢复方法。
+- [`docs/数据字典.md`](./docs/数据字典.md)：前后端字段和数据边界。
+- [`docs/安全风险记录.md`](./docs/安全风险记录.md)：已知依赖风险和缓解措施。
 
-表已开启 RLS，并撤销浏览器匿名角色的直接读写权限。只有服务端使用的 `service_role` 密钥可以写入。
+### 1. 创建 CloudBase 环境
 
-### 2. 配置 Vercel
+1. 登录[腾讯云 CloudBase 控制台](https://console.cloud.tencent.com/tcb)。
+2. 点击**新建环境**，选择按量计费，环境名称可填写 `survey-demo`。
+3. 选择离主要用户较近的地域，等待环境初始化完成。
+4. 进入环境后，打开 **PostgreSQL -> SQL 编辑器**。
+5. 执行 [`database/migrations/001_create_survey_submissions.sql`](./database/migrations/001_create_survey_submissions.sql)。
+6. 确认生成 `public.survey_submissions` 表；网页不直接访问数据库。
 
-在 Vercel 导入 GitHub 仓库。如果仓库根目录就是本项目，不需要调整 Root Directory；如果本项目位于大仓库的 `survey-h5/`，Root Directory 选择 `survey-h5`。
+### 2. 创建云函数
 
-在 **Project Settings -> Environment Variables** 添加：
+1. 打开**云函数**，点击**新建云函数**。
+2. 函数名称填写 `survey`，运行环境选择 Node.js 18 或更高版本。
+3. 创建方式选择本地上传或上传 ZIP，将 [`cloudfunctions/survey`](./cloudfunctions/survey) 目录中的文件上传。
+4. 入口函数填写 `index.main`。
+5. 安装依赖并部署函数。
+6. 在函数配置中添加环境变量：
 
-| 名称 | 值 |
+| 名称 | 建议值 |
 | --- | --- |
-| `SUPABASE_URL` | Supabase Project Settings -> API 中的 Project URL |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Project Settings -> API Keys 中的 `service_role` secret |
-| `DEMO_SERVICE_NAME` | 可选，例如 `投顾服务` |
-| `DEMO_SERVICE_END_DATE` | 可选，格式 `YYYY-MM-DD` |
+| `ALLOWED_ORIGIN` | `https://gaotiantiantian.github.io` |
+| `DEMO_SERVICE_NAME` | `投顾服务` |
+| `DEMO_SERVICE_END_DATE` | `2026-11-29` |
 
-`SUPABASE_SERVICE_ROLE_KEY` 只能放在 Vercel 环境变量中，不能以 `VITE_` 开头，也不能提交到 GitHub。
+`ALLOWED_ORIGIN` 只填写域名来源，不带 `/test-demo/` 路径。
 
-配置完成后重新部署。访问：
+### 3. 创建 HTTP 访问地址
 
-```text
-https://你的域名/api/health
-```
-
-返回以下内容表示数据库已连通：
+1. 在 CloudBase 环境中打开**HTTP 访问服务**或**云函数 HTTP 触发器**。
+2. 新建路径，例如 `/survey`，关联刚创建的 `survey` 云函数。
+3. 开启公网访问并保存。
+4. 复制控制台提供的完整 HTTPS 地址。
+5. 浏览器直接访问该地址，返回以下内容表示数据库已连接：
 
 ```json
 {"status":"ok","database":"connected"}
 ```
 
-### 3. 验证反馈保存
+### 4. 将云函数地址配置到 GitHub
 
-1. 打开 Vercel 部署后的问卷页面。
+1. 打开 GitHub 仓库 `gaotiantiantian/test-demo`。
+2. 点击 **Settings -> Secrets and variables -> Actions -> Variables**。
+3. 点击 **New repository variable**。
+4. Name 填写 `VITE_CLOUDBASE_FUNCTION_URL`。
+5. Value 粘贴 CloudBase 的完整 HTTPS 地址并保存。
+6. 打开 **Actions**，重新运行 `Deploy Vue to Pages`，或推送一次新提交触发部署。
+
+云函数 URL 不是数据库密钥，可以作为 GitHub Actions Variable 使用；数据库仍只允许云函数访问。
+
+### 5. 验证反馈保存
+
+1. 打开 `https://gaotiantiantian.github.io/test-demo/`。
 2. 完成三道题并提交。
 3. 成功页显示数据库返回的提交结果。
-4. 回到 Supabase **Table Editor -> survey_submissions** 查看新记录。
+4. 回到 CloudBase **PostgreSQL -> survey_submissions** 查看新记录。
 
 本地 `npm run dev` 默认继续使用 mock，避免误写云数据库。需要从本地页面调用已部署 API 时，新建 `.env.local`：
 
 ```dotenv
 VITE_USE_MOCK_API=false
-VITE_API_BASE_URL=https://你的-vercel-域名
+VITE_CLOUDBASE_FUNCTION_URL=https://你的-cloudbase-云函数地址
 ```
 
-同时在 Vercel 将 `ALLOWED_ORIGIN` 设置为本地页面来源，例如 `http://127.0.0.1:5173`，然后重新部署。
+同时将云函数的 `ALLOWED_ORIGIN` 临时改为本地页面来源，例如 `http://127.0.0.1:5173`。线上验收前要改回 GitHub Pages 来源。
 
 ## 正式上线边界
 
 登录与服务资格暂未迁移。它们应接入现有账号和订单系统，不应复用旧原型中的演示账号、固定验证码或浏览器本地数据库。
 
-正式版本必须由后端完成身份校验、服务资格检查和真实权益发放，并将 `submission_mode` 改为 `production`。当前公开演示接口没有账号鉴权，不适合直接收集真实客户敏感信息。
+正式版本必须由后端完成身份校验、服务资格检查和真实权益发放，并将 `submissionMode` 改为 `production`。当前公开演示接口没有账号鉴权，不适合直接收集真实客户敏感信息。
 
 ## 视觉验收
 
