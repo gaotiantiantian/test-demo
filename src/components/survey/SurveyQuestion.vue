@@ -13,6 +13,20 @@ const emit = defineEmits(['select', 'toggle-reason'])
 function onSelect(value) {
   if (!props.disabled) emit('select', value)
 }
+
+function onPointerSelect(event, value) {
+  if (event.pointerType === 'touch') {
+    event.preventDefault()
+    onSelect(value)
+  }
+}
+
+function onPointerToggleReason(event, reason) {
+  if (event.pointerType === 'touch' && !props.disabled) {
+    event.preventDefault()
+    emit('toggle-reason', reason)
+  }
+}
 </script>
 
 <template>
@@ -33,6 +47,7 @@ function onSelect(value) {
         :key="option.value"
         class="answer-option"
         :class="{ 'answer-option--selected': answer.value === option.value }"
+        @pointerup="onPointerSelect($event, option.value)"
       >
         <input
           type="radio"
@@ -56,7 +71,12 @@ function onSelect(value) {
     <fieldset v-if="answer.value === 'negative'" class="reasons" :disabled="disabled">
       <legend>请选择具体原因<span>可多选</span></legend>
       <div class="reason-options">
-        <label v-for="reason in question.reasons" :key="reason" class="reason-option">
+        <label
+          v-for="reason in question.reasons"
+          :key="reason"
+          class="reason-option"
+          @pointerup="onPointerToggleReason($event, reason)"
+        >
           <input
             type="checkbox"
             :checked="answer.reasons.includes(reason)"
@@ -128,6 +148,8 @@ h2::before {
   font-size: 15px;
   line-height: 1.5;
   text-align: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .answer-option--selected {
@@ -205,6 +227,8 @@ h2::before {
   background: #f5f5f5;
   font-size: 13px;
   line-height: 1.5;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .reason-option input {

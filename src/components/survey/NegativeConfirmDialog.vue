@@ -13,14 +13,23 @@ watch(
   () => props.open,
   async (open) => {
     await nextTick()
-    if (open && !dialog.value.open) dialog.value.showModal()
+    if (open && !dialog.value.open) {
+      dialog.value.showModal()
+      dialog.value.focus({ preventScroll: true })
+    }
     if (!open && dialog.value.open) dialog.value.close()
   },
 )
 </script>
 
 <template>
-  <dialog ref="dialog" class="confirm-dialog" @close="emit('close')" @cancel="emit('close')">
+  <dialog
+    ref="dialog"
+    class="confirm-dialog"
+    tabindex="-1"
+    @close="emit('close')"
+    @cancel="emit('close')"
+  >
     <button class="close-button" type="button" aria-label="关闭" @click="emit('close')">×</button>
     <h2>请确认您的选择</h2>
     <p>您选择了“{{ negativeLabel }}”，请确认是否选错。</p>
@@ -44,6 +53,10 @@ watch(
 
 .confirm-dialog::backdrop {
   background: rgb(0 0 0 / 73%);
+}
+
+.confirm-dialog:focus {
+  outline: none;
 }
 
 .close-button {
