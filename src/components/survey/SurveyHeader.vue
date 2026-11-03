@@ -1,9 +1,14 @@
 <script setup>
-import headerBackground from '@/assets/images/survey-header.png'
+import headerBackgroundPng from '@/assets/images/survey-header.png'
+import headerBackgroundWebp from '@/assets/images/survey-header.webp'
 </script>
 
 <template>
-  <header class="survey-header" :style="{ backgroundImage: `url(${headerBackground})` }">
+  <header class="survey-header">
+    <picture class="header-background" aria-hidden="true">
+      <source :srcset="headerBackgroundWebp" type="image/webp" />
+      <img :src="headerBackgroundPng" alt="" fetchpriority="high" />
+    </picture>
     <p class="eyebrow">每一份反馈，都很重要</p>
     <h1>产品与服务满意度调查</h1>
   </header>
@@ -11,6 +16,7 @@ import headerBackground from '@/assets/images/survey-header.png'
 
 <style scoped>
 .survey-header {
+  position: relative;
   display: flex;
   height: auto;
   aspect-ratio: 2.5;
@@ -18,10 +24,26 @@ import headerBackground from '@/assets/images/survey-header.png'
   padding: 34px 24px 10px;
   flex-direction: column;
   overflow: hidden;
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
+  background-color: #dbe5ff;
+}
+
+.header-background {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+}
+
+.header-background img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+}
+
+.eyebrow,
+h1 {
+  position: relative;
+  z-index: 1;
 }
 
 .eyebrow {
