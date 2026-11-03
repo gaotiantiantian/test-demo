@@ -16,6 +16,8 @@ npm run test
 npm run build
 ```
 
+开发时可运行 `npm run test:watch`，相关文件变化后会自动重跑测试。准备发布前运行 `npm run check`，一次完成全部测试与生产构建。
+
 ## 目录职责
 
 - `src/components/`：只负责展示和交互，通过 props/emits 通信。

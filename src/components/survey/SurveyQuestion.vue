@@ -21,12 +21,6 @@ function onPointerSelect(event, value) {
   }
 }
 
-function onPointerToggleReason(event, reason) {
-  if (event.pointerType === 'touch' && !props.disabled) {
-    event.preventDefault()
-    emit('toggle-reason', reason)
-  }
-}
 </script>
 
 <template>
@@ -71,12 +65,7 @@ function onPointerToggleReason(event, reason) {
     <fieldset v-if="answer.value === 'negative'" class="reasons" :disabled="disabled">
       <legend>请选择具体原因<span>可多选</span></legend>
       <div class="reason-options">
-        <label
-          v-for="reason in question.reasons"
-          :key="reason"
-          class="reason-option"
-          @pointerup="onPointerToggleReason($event, reason)"
-        >
+        <label v-for="reason in question.reasons" :key="reason" class="reason-option">
           <input
             type="checkbox"
             :checked="answer.reasons.includes(reason)"
