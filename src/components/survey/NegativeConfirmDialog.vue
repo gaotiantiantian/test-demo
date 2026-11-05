@@ -42,7 +42,7 @@ watch(
 
 <style scoped>
 .confirm-dialog {
-  width: min(460px, calc(100vw - 32px));
+  width: min(460px, calc(100vw - 80px));
   padding: 24px 18px;
   border: 0;
   border-radius: 9px;
