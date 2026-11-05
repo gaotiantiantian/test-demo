@@ -74,6 +74,7 @@ function normalizeAnswer(answer, question) {
 function normalizeSubmission(payload, now = new Date(), environment = process.env) {
   if (!payload || typeof payload !== 'object') throw new RequestError(400, '请求数据格式不正确。')
   if (!uuidPattern.test(payload.requestId || '')) throw new RequestError(400, '请求标识无效。')
+  if (!uuidPattern.test(payload.visitorId || '')) throw new RequestError(400, '访客标识无效。')
   if (typeof payload.serviceId !== 'string' || !payload.serviceId.trim() || payload.serviceId.length > 64) {
     throw new RequestError(400, '服务标识无效。')
   }
@@ -90,6 +91,7 @@ function normalizeSubmission(payload, now = new Date(), environment = process.en
 
   return {
     requestId: payload.requestId,
+    visitorId: payload.visitorId,
     serviceId: payload.serviceId.trim(),
     answers: QUESTIONS.map((question) => normalizeAnswer(answerMap.get(question.id), question)),
     reward: {

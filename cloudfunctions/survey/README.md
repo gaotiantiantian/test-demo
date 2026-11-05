@@ -2,7 +2,9 @@
 
 在腾讯云 CloudBase 控制台创建 Node.js 云函数 `survey`，上传本目录代码并安装依赖。
 
-必须先执行 [`../../database/migrations/001_create_survey_submissions.sql`](../../database/migrations/001_create_survey_submissions.sql)，创建 PostgreSQL 表 `public.survey_submissions`。函数通过 `app.rdb()` 使用服务端身份访问该表，网页不直连数据库。
+必须按编号依次执行 [`../../database/migrations`](../../database/migrations) 中的 SQL。`002` 迁移会新增访客标识与奖励状态，并通过 PostgreSQL 事务保证同一访客、同一服务在滚动 30 天内只获得一次奖励。反馈本身不受限制，仍会正常入库。
+
+当前 H5 没有登录系统，因此使用浏览器本地生成的访客 ID。它适合演示流程，但清除浏览器数据或更换设备后会被视为新访客；正式项目应改用登录账号的稳定用户 ID。
 
 环境变量：
 

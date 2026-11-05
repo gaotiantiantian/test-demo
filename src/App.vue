@@ -5,10 +5,12 @@ import SurveySuccess from '@/components/survey/SurveySuccess.vue'
 import SurveyView from '@/components/survey/SurveyView.vue'
 import { submitSurvey } from '@/api/survey'
 import successImage from '@/assets/images/survey-success.png'
+import { useVisitorId } from '@/composables/useVisitorId'
 
 const pageState = ref('survey')
 const submission = ref(null)
 const submitError = ref('')
+const visitorId = useVisitorId()
 
 onMounted(() => {
   const image = new Image()
@@ -24,6 +26,7 @@ async function handleSubmit(answers) {
   try {
     submission.value = await submitSurvey({
       requestId: crypto.randomUUID(),
+      visitorId,
       serviceId: 'demo-service',
       answers,
     })

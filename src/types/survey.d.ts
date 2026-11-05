@@ -8,13 +8,16 @@ export interface SurveyAnswerPayload {
 
 export interface SurveySubmissionPayload {
   requestId: string
+  visitorId: string
   serviceId: string
   answers: SurveyAnswerPayload[]
 }
 
 export interface RewardResult {
   days: number
+  granted: boolean
   before: string
   after: string
+  nextEligibleAt: string
   serviceName: string
 }

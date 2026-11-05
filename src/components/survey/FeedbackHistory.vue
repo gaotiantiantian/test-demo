@@ -18,7 +18,9 @@ const formatDateTime = (value) =>
   <section class="feedback-history">
     <header>
       <h2>第1次反馈</h2>
-      <span class="submission-gift">已赠送{{ submission.reward.days }}天</span>
+      <span class="submission-gift">
+        {{ submission.reward.granted === false ? '本次未重复赠送' : `已赠送${submission.reward.days}天` }}
+      </span>
       <time :datetime="submission.submittedAt">{{ formatDateTime(submission.submittedAt) }}</time>
     </header>
     <article v-for="answer in submission.answers" :key="answer.id">

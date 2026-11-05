@@ -21,7 +21,7 @@ function response(statusCode, data, event) {
 
 async function getSubmission(id) {
   const { data, error } = await surveyTable()
-    .select('request_id, service_id, answers, reward, submission_mode, submitted_at')
+    .select('request_id, visitor_id, service_id, answers, reward, reward_granted, submission_mode, submitted_at')
     .eq('request_id', id)
     .maybeSingle()
 
@@ -38,23 +38,23 @@ async function saveSubmission(payload) {
   const existing = await getSubmission(payload.requestId)
   if (existing) return existing
 
-  const document = {
-    request_id: payload.requestId,
-    service_id: payload.serviceId,
-    answers: payload.answers,
-    reward: payload.reward,
-    submission_mode: 'demo',
-    submitted_at: new Date().toISOString(),
-  }
-
-  const { error } = await surveyTable().insert(document)
+  const submittedAt = new Date().toISOString()
+  const { data, error } = await database.rpc('submit_survey_with_reward_limit', {
+    p_request_id: payload.requestId,
+    p_visitor_id: payload.visitorId,
+    p_service_id: payload.serviceId,
+    p_answers: payload.answers,
+    p_reward: payload.reward,
+    p_submission_mode: 'demo',
+    p_submitted_at: submittedAt,
+  })
   if (error) {
     const racedDocument = await getSubmission(payload.requestId)
     if (racedDocument) return racedDocument
     throw error
   }
 
-  return document
+  return Array.isArray(data) ? data[0] : data
 }
 
 exports.main = async (event) => {

@@ -56,8 +56,8 @@ GitHub Pages 上的 Vue H5 -> CloudBase HTTP 云函数 -> CloudBase 云数据库
 2. 点击**新建环境**，选择按量计费，环境名称可填写 `survey-demo`。
 3. 选择离主要用户较近的地域，等待环境初始化完成。
 4. 进入环境后，打开 **PostgreSQL -> SQL 编辑器**。
-5. 执行 [`database/migrations/001_create_survey_submissions.sql`](./database/migrations/001_create_survey_submissions.sql)。
-6. 确认生成 `public.survey_submissions` 表；网页不直接访问数据库。
+5. 按文件编号依次执行 [`database/migrations`](./database/migrations) 中尚未执行的 SQL。
+6. 确认生成 `public.survey_submissions` 表；`002` 会增加滚动 30 天奖励限制，网页不直接访问数据库。
 
 ### 2. 创建云函数
 

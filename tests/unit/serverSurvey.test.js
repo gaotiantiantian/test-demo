@@ -5,6 +5,7 @@ const { MAX_BODY_BYTES, normalizeSubmission, parseBody, toPublicSubmission } = s
 
 const validPayload = {
   requestId: '018f8f8e-7d30-7c22-9d60-3d0bdc531111',
+  visitorId: '018f8f8e-7d30-7c22-9d60-3d0bdc532222',
   serviceId: 'demo-service',
   answers: [
     { questionId: 'q1', value: 'positive', reasonIds: [] },
@@ -33,6 +34,13 @@ describe('server survey normalization', () => {
     payload.answers[1].reasonIds = [99]
 
     expect(() => normalizeSubmission(payload)).toThrow('具体原因无效，请重新选择。')
+  })
+
+  it('rejects an invalid visitor id', () => {
+    const payload = structuredClone(validPayload)
+    payload.visitorId = 'invalid'
+
+    expect(() => normalizeSubmission(payload)).toThrow('访客标识无效。')
   })
 
   it('parses a base64 encoded request body', () => {

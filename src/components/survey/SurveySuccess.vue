@@ -9,6 +9,7 @@ defineProps({
 
 const expanded = ref(false)
 const formatDate = (value) => value.replaceAll('-', '.')
+const formatDateTime = (value) => formatDate(value.slice(0, 10))
 </script>
 
 <template>
@@ -22,13 +23,20 @@ const formatDate = (value) => value.replaceAll('-', '.')
       <div class="reward">
         <div class="reward-days">
           <div><strong>{{ submission.reward.days }}</strong><span>天</span></div>
-          <small>赠送天数</small>
+          <small>{{ submission.reward.granted === false ? '本次赠送' : '赠送天数' }}</small>
         </div>
         <div class="reward-copy">
-          <h2>本次已赠送{{ submission.reward.days }}天服务期</h2>
-          <p>{{ submission.reward.serviceName }}</p>
-          <p>原到期日 {{ formatDate(submission.reward.before) }}</p>
-          <p>延长后到期日 {{ formatDate(submission.reward.after) }}</p>
+          <template v-if="submission.reward.granted !== false">
+            <h2>本次已赠送{{ submission.reward.days }}天服务期</h2>
+            <p>{{ submission.reward.serviceName }}</p>
+            <p>原到期日 {{ formatDate(submission.reward.before) }}</p>
+            <p>延长后到期日 {{ formatDate(submission.reward.after) }}</p>
+          </template>
+          <template v-else>
+            <h2>反馈已提交，本次不重复赠送</h2>
+            <p>每位用户滚动30天内可获得1次奖励</p>
+            <p>下次可获奖日期 {{ formatDateTime(submission.reward.nextEligibleAt) }}</p>
+          </template>
         </div>
       </div>
 
